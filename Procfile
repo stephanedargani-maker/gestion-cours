@@ -1,1 +1,1 @@
-web: gunicorn gestion_cours.wsgi
+web: python manage.py collectstatic --noinput && python manage.py migrate && gunicorn gestion_cours.wsgi
