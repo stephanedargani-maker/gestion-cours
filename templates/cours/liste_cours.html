@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Tous les cours — GestionCours{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+
+  <!-- Header -->
+  <div class="mb-10">
+    <div class="flex items-center gap-2 text-sm text-gray-400 mb-3">
+      <a href="{% url 'cours:liste' %}" class="hover:text-blue-600 transition-colors">Accueil</a>
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      <span class="text-gray-600">Tous les cours</span>
+    </div>
+    <h1 class="text-4xl font-bold text-gray-900 mb-2">Tous les cours</h1>
+    <p class="text-gray-500">{{ cours_list|length }} cours disponibles sur la plateforme</p>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <form method="get" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-8 flex flex-col sm:flex-row gap-3">
+    <div class="relative flex-1">
+      <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input
+        type="text" name="q" value="{{ query }}"
+        placeholder="Rechercher un cours ou un enseignant..."
+        class="input input-bordered w-full pl-9 text-sm bg-gray-50 border-gray-200 focus:border-blue-400 focus:bg-white"
+      >
+    </div>
+    <select name="enseignant" class="select select-bordered text-sm bg-gray-50 border-gray-200 focus:border-blue-400 w-full sm:w-56">
+      <option value="">Tous les enseignants</option>
+      {% for ens in enseignants %}
+      <option value="{{ ens }}" {% if ens == enseignant_filtre %}selected{% endif %}>{{ ens }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary gap-2 shrink-0">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/></svg>
+      Filtrer
+    </button>
+    {% if query or enseignant_filtre %}
+    <a href="{% url 'cours:liste_cours' %}" class="btn btn-ghost btn-sm self-center text-gray-500">✕ Effacer</a>
+    {% endif %}
+  </form>
+
+  <!-- Results -->
+  {% if cours_list %}
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for cours in cours_list %}
+    <a href="{% url 'cours:detail' cours.pk %}" class="cours-card bg-white rounded-2xl overflow-hidden shadow-sm block group">
+      <div class="h-1.5 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
+      <div class="p-6">
+        <div class="flex items-start justify-between mb-4">
+          <div class="w-11 h-11 rounded-xl bg-blue-50 flex items-center justify-center group-hover:bg-blue-100 transition-colors">
+            <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div class="flex items-center gap-1 text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            {{ cours.date_publication|date:"d/m/Y" }}
+          </div>
+        </div>
+
+        <h3 class="font-bold text-gray-900 text-base mb-3 leading-snug group-hover:text-blue-700 transition-colors line-clamp-2">
+          {{ cours.titre }}
+        </h3>
+
+        <div class="flex items-center gap-2 pt-4 border-t border-gray-100">
+          <div class="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold shrink-0">
+            {{ cours.enseignant|first|upper }}
+          </div>
+          <span class="text-sm text-gray-600 truncate">{{ cours.enseignant }}</span>
+          <svg class="w-4 h-4 text-blue-400 ml-auto opacity-0 group-hover:opacity-100 transition-all translate-x-0 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <!-- Empty state -->
+  <div class="text-center py-24 bg-white rounded-2xl border border-dashed border-gray-200">
+    <div class="w-20 h-20 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-6">
+      <svg class="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    </div>
+    <h3 class="text-xl font-semibold text-gray-700 mb-2">Aucun résultat trouvé</h3>
+    <p class="text-gray-400 mb-6">Aucun cours ne correspond à votre recherche.</p>
+    <a href="{% url 'cours:liste_cours' %}" class="btn btn-primary btn-sm">Voir tous les cours</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
