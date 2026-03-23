@@ -1,1 +1,1 @@
-web: python manage.py migrate --noinput && gunicorn gestion_cours.wsgi
+web: bash start.sh
