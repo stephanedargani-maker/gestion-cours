@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Ajouter un cours — GestionCours{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 py-12">
+
+  <!-- Breadcrumb -->
+  <div class="flex items-center gap-2 text-sm text-gray-400 mb-8">
+    <a href="{% url 'cours:liste' %}" class="hover:text-indigo-600">Accueil</a>
+    <span>›</span>
+    <a href="{% url 'cours:liste_cours' %}" class="hover:text-indigo-600">Cours</a>
+    <span>›</span>
+    <span class="text-gray-600">Nouveau cours</span>
+  </div>
+
+  <div class="glass-card overflow-hidden">
+    <div class="h-2 bg-gradient-to-r from-indigo-500 to-cyan-500"></div>
+    <div class="p-8">
+      <div class="flex items-center gap-4 mb-8">
+        <div class="w-14 h-14 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg">
+          <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        </div>
+        <div>
+          <h1 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.75rem" class="text-gray-900">Nouveau cours</h1>
+          <p class="text-gray-500 text-sm">Remplissez les informations du cours</p>
+        </div>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="form-control mb-5">
+          <label class="label pb-1"><span class="label-text font-medium text-gray-700">Titre du cours <span class="text-red-500">*</span></span></label>
+          {{ form.titre }}
+          {% if form.titre.errors %}<p class="text-red-500 text-xs mt-1">{{ form.titre.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="form-control mb-5">
+          <label class="label pb-1"><span class="label-text font-medium text-gray-700">Enseignant <span class="text-red-500">*</span></span></label>
+          {{ form.enseignant }}
+          {% if form.enseignant.errors %}<p class="text-red-500 text-xs mt-1">{{ form.enseignant.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="form-control mb-5">
+          <label class="label pb-1"><span class="label-text font-medium text-gray-700">Date de publication <span class="text-red-500">*</span></span></label>
+          {{ form.date_publication }}
+          {% if form.date_publication.errors %}<p class="text-red-500 text-xs mt-1">{{ form.date_publication.errors.0 }}</p>{% endif %}
+        </div>
+
+        <div class="form-control mb-8">
+          <label class="label pb-1"><span class="label-text font-medium text-gray-700">Description</span></label>
+          {{ form.description }}
+        </div>
+
+        <div class="flex gap-3">
+          <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-0 flex-1 rounded-xl gap-2">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Publier le cours
+          </button>
+          <a href="{% url 'cours:liste_cours' %}" class="btn btn-ghost rounded-xl text-gray-500">Annuler</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Créer un compte — GestionCours{% endblock %}
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-lg">
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center mx-auto mb-4 shadow-lg">
+        <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+      </div>
+      <h1 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:2rem" class="text-gray-900">Créer un compte</h1>
+      <p class="text-gray-500 mt-1">Rejoignez la plateforme GestionCours</p>
+    </div>
+
+    <div class="glass-card p-8">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="grid grid-cols-2 gap-4 mb-5">
+          <div class="form-control">
+            <label class="label pb-1"><span class="label-text font-medium text-gray-700">Prénom</span></label>
+            {{ form.first_name }}
+          </div>
+          <div class="form-control">
+            <label class="label pb-1"><span class="label-text font-medium text-gray-700">Nom</span></label>
+            {{ form.last_name }}
+          </div>
+        </div>
+
+        <div class="form-control mb-5">
+          <label class="label pb-1"><span class="label-text font-medium text-gray-700">Email</span></label>
+          {{ form.email }}
+        </div>
+
+        <div class="form-control mb-5">
+          <label class="label pb-1"><span class="label-text font-medium text-gray-700">Nom d'utilisateur</span></label>
+          {{ form.username }}
+        </div>
+
+        
+
+        <div class="form-control mb-5">
+          <label class="label pb-1"><span class="label-text font-medium text-gray-700">Mot de passe</span></label>
+          {{ form.password1 }}
+        </div>
+
+        <div class="form-control mb-8">
+          <label class="label pb-1"><span class="label-text font-medium text-gray-700">Confirmer</span></label>
+          {{ form.password2 }}
+          {% if form.password2.errors %}<p class="text-red-500 text-xs mt-1">{{ form.password2.errors.0 }}</p>{% endif %}
+        </div>
+
+        <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-0 w-full rounded-xl text-base font-semibold">
+          Créer mon compte →
+        </button>
+      </form>
+
+      <p class="text-center text-sm text-gray-500 mt-5">
+        Déjà un compte ?
+        <a href="{% url 'cours:connexion' %}" class="text-indigo-600 font-medium hover:underline">Se connecter</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,162 +1,197 @@
 {% extends "base.html" %}
-{% block title %}Tableau de bord — GestionCours{% endblock %}
-
+{% block title %}Dashboard — GestionCours{% endblock %}
 {% block content %}
-<div class="max-w-6xl mx-auto px-4 sm:px-6 py-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-12">
 
-  <!-- Welcome header -->
+  <!-- Header -->
   <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10">
     <div>
-      <p class="text-sm text-blue-600 font-medium mb-1">Bienvenue de retour 👋</p>
-      <h1 class="text-3xl font-bold text-gray-900">{{ user.get_full_name|default:user.username }}</h1>
-      <p class="text-gray-500 mt-1">Tableau de bord — {{ today|date:"l d F Y" }}</p>
+      <div class="flex items-center gap-3 mb-1">
+        <span class="text-2xl">{% if role == 'admin' %}👑{% elif role == 'enseignant' %}👨‍🏫{% else %}🎓{% endif %}</span>
+        <p class="text-sm font-medium text-indigo-600">{{ role|capfirst }}</p>
+      </div>
+      <h1 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:2rem" class="text-gray-900">
+        Bienvenu, {{ user.get_full_name|default:user.username }} !
+      </h1>
+      <p class="text-gray-500">{{ today|date:"l d F Y" }}</p>
     </div>
-    <a href="/admin/cours/cours/add/" class="btn btn-primary gap-2 shrink-0">
-      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-      Nouveau cours
-    </a>
+    {% if role == 'admin' or role == 'enseignant' %}
+    <div class="flex gap-3">
+      <a href="{% url 'cours:imprimer_cours' %}" target="_blank" class="btn btn-outline border-indigo-200 text-indigo-600 hover:bg-indigo-50 rounded-xl gap-2">🖨 Imprimer</a>
+      <a href="{% url 'cours:ajouter_cours' %}" class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-0 rounded-xl gap-2">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Nouveau cours
+      </a>
+    </div>
+    {% endif %}
   </div>
 
-  <!-- Stat cards -->
+  <!-- ADMIN DASHBOARD -->
+  {% if role == 'admin' %}
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-      <div class="flex items-center justify-between mb-3">
-        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-          <svg class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-        </div>
-        <span class="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full">Total</span>
-      </div>
-      <div class="text-3xl font-bold text-gray-900 mb-0.5">{{ total_cours }}</div>
+    
+    <div class="stat-card">
+      <div class="text-3xl font-bold text-indigo-600 mb-1" style="font-family:'Bricolage Grotesque',sans-serif">{{ total_cours }}</div>
       <div class="text-sm text-gray-500">Cours publiés</div>
     </div>
-
-    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-      <div class="flex items-center justify-between mb-3">
-        <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
-          <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-        </div>
-        <span class="text-xs text-indigo-600 font-medium bg-indigo-50 px-2 py-0.5 rounded-full">Actifs</span>
-      </div>
-      <div class="text-3xl font-bold text-gray-900 mb-0.5">{{ total_enseignants }}</div>
+    <div class="stat-card">
+      <div class="text-3xl font-bold text-cyan-600 mb-1" style="font-family:'Bricolage Grotesque',sans-serif">{{ total_enseignants }}</div>
       <div class="text-sm text-gray-500">Enseignants</div>
     </div>
-
-    <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-      <div class="flex items-center justify-between mb-3">
-        <div class="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
-          <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        </div>
-        <span class="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full">Ce mois</span>
-      </div>
-      <div class="text-3xl font-bold text-gray-900 mb-0.5">{{ cours_ce_mois }}</div>
-      <div class="text-sm text-gray-500">Nouveaux cours</div>
+    <div class="stat-card">
+      <div class="text-3xl font-bold text-emerald-600 mb-1" style="font-family:'Bricolage Grotesque',sans-serif">{{ total_inscrits }}</div>
+      <div class="text-sm text-gray-500">Étudiants inscrits</div>
     </div>
-
-    <div class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-5 shadow-sm text-white">
-      <div class="flex items-center justify-between mb-3">
-        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-        </div>
-      </div>
-      <div class="text-3xl font-bold mb-0.5">Admin</div>
-      <a href="/admin/" class="text-sm text-blue-100 hover:text-white transition-colors flex items-center gap-1 mt-1">
-        Accéder au backend
-        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-      </a>
+    <div class="stat-card">
+      <div class="text-3xl font-bold text-violet-600 mb-1" style="font-family:'Bricolage Grotesque',sans-serif">{{ cours_ce_mois }}</div>
+      <div class="text-sm text-gray-500">Cours ce mois</div>
     </div>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-    <!-- Derniers cours -->
-    <div class="lg:col-span-2">
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 class="font-semibold text-gray-900">Derniers cours ajoutés</h2>
-          <a href="{% url 'cours:liste_cours' %}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">Voir tout →</a>
+    <div class="lg:col-span-2 glass-card overflow-hidden">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-indigo-50">
+        <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600" class="text-gray-900">Derniers cours</h2>
+        <a href="{% url 'cours:liste_cours' %}" class="text-sm text-indigo-600">Voir tout →</a>
+      </div>
+      {% for cours in derniers_cours %}
+      <div class="flex items-center gap-4 px-6 py-4 hover:bg-indigo-50/50 transition-colors border-b border-gray-50 group">
+        <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
+          <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
         </div>
-        <div class="divide-y divide-gray-50">
-          {% for cours in derniers_cours %}
-          <div class="flex items-center gap-4 px-6 py-4 hover:bg-gray-50 transition-colors group">
-            <div class="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-              <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            </div>
-            <div class="flex-1 min-w-0">
-              <a href="{% url 'cours:detail' cours.pk %}" class="font-medium text-gray-900 text-sm hover:text-blue-600 truncate block">{{ cours.titre }}</a>
-              <div class="text-xs text-gray-400 mt-0.5">{{ cours.enseignant }} · {{ cours.date_publication|date:"d/m/Y" }}</div>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <a href="/admin/cours/cours/{{ cours.pk }}/change/" class="btn btn-ghost btn-xs text-gray-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-              </a>
-            </div>
-          </div>
-          {% empty %}
-          <div class="text-center py-12 text-gray-400 text-sm">
-            Aucun cours pour l'instant.
-            <a href="/admin/cours/cours/add/" class="text-blue-600 hover:underline ml-1">En ajouter un ?</a>
-          </div>
-          {% endfor %}
+        <div class="flex-1 min-w-0">
+          <a href="{% url 'cours:detail' cours.pk %}" class="font-medium text-gray-900 text-sm hover:text-indigo-600 truncate block">{{ cours.titre }}</a>
+          <div class="text-xs text-gray-400">{{ cours.enseignant }} · {{ cours.date_publication|date:"d/m/Y" }}</div>
+        </div>
+        <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+          <a href="{% url 'cours:modifier_cours' cours.pk %}" class="btn btn-xs btn-ghost text-amber-500 rounded-lg">✏️</a>
+          <a href="{% url 'cours:supprimer_cours' cours.pk %}" class="btn btn-xs btn-ghost text-red-400 rounded-lg">🗑</a>
         </div>
       </div>
+      {% endfor %}
     </div>
 
-    <!-- Quick actions -->
     <div class="space-y-4">
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-        <h2 class="font-semibold text-gray-900 mb-4">Actions rapides</h2>
+      <div class="glass-card p-5">
+        <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600" class="text-gray-900 mb-4">Actions rapides</h2>
         <div class="space-y-2">
-          <a href="/admin/cours/cours/add/" class="flex items-center gap-3 p-3 rounded-xl hover:bg-blue-50 transition-colors group">
-            <div class="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
-              <svg class="w-4 h-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            </div>
-            <span class="text-sm font-medium text-gray-700 group-hover:text-blue-700">Créer un cours</span>
+          <a href="{% url 'cours:ajouter_cours' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-indigo-50 transition-colors">
+            <span class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm">+</span>
+            <span class="text-sm font-medium text-gray-700">Créer un cours</span>
           </a>
-          <a href="/admin/cours/cours/" class="flex items-center gap-3 p-3 rounded-xl hover:bg-indigo-50 transition-colors group">
-            <div class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-              <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-            </div>
-            <span class="text-sm font-medium text-gray-700 group-hover:text-indigo-700">Gérer les cours</span>
+          <a href="/admin/cours/cours/" class="flex items-center gap-3 p-3 rounded-xl hover:bg-indigo-50 transition-colors">
+            <span class="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center text-indigo-600 text-sm">📋</span>
+            <span class="text-sm font-medium text-gray-700">Gérer les cours</span>
           </a>
-          <a href="/admin/auth/user/add/" class="flex items-center gap-3 p-3 rounded-xl hover:bg-green-50 transition-colors group">
-            <div class="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center group-hover:bg-green-200 transition-colors">
-              <svg class="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
-            </div>
-            <span class="text-sm font-medium text-gray-700 group-hover:text-green-700">Ajouter un utilisateur</span>
+          <a href="/admin/auth/user/add/" class="flex items-center gap-3 p-3 rounded-xl hover:bg-emerald-50 transition-colors">
+            <span class="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 text-sm">👤</span>
+            <span class="text-sm font-medium text-gray-700">Ajouter un utilisateur</span>
           </a>
-          <a href="/admin/" class="flex items-center gap-3 p-3 rounded-xl hover:bg-orange-50 transition-colors group">
-            <div class="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center group-hover:bg-orange-200 transition-colors">
-              <svg class="w-4 h-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            </div>
-            <span class="text-sm font-medium text-gray-700 group-hover:text-orange-700">Administration</span>
+          <a href="{% url 'cours:imprimer_cours' %}" target="_blank" class="flex items-center gap-3 p-3 rounded-xl hover:bg-amber-50 transition-colors">
+            <span class="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600 text-sm">🖨</span>
+            <span class="text-sm font-medium text-gray-700">Imprimer les listes</span>
           </a>
-        </div>
-      </div>
-
-      <!-- Top enseignants -->
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
-        <h2 class="font-semibold text-gray-900 mb-4">Enseignants actifs</h2>
-        <div class="space-y-3">
-          {% for ens in top_enseignants %}
-          <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold shrink-0">
-              {{ ens.enseignant|first|upper }}
-            </div>
-            <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium text-gray-800 truncate">{{ ens.enseignant }}</div>
-              <div class="text-xs text-gray-400">{{ ens.total }} cours</div>
-            </div>
-            <div class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg">
-              {{ ens.total }}
-            </div>
-          </div>
-          {% empty %}
-          <p class="text-sm text-gray-400 text-center py-4">Aucun enseignant</p>
-          {% endfor %}
+          <a href="/admin/" class="flex items-center gap-3 p-3 rounded-xl hover:bg-violet-50 transition-colors">
+            <span class="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center text-violet-600 text-sm">⚙️</span>
+            <span class="text-sm font-medium text-gray-700">Administration</span>
+          </a>
         </div>
       </div>
     </div>
-
   </div>
+
+  <!-- ENSEIGNANT DASHBOARD -->
+  {% elif role == 'enseignant' %}
+  <div class="grid grid-cols-3 gap-4 mb-10">
+    <div class="stat-card">
+      <div class="text-3xl font-bold text-indigo-600 mb-1" style="font-family:'Bricolage Grotesque',sans-serif">{{ total_mes_cours }}</div>
+      <div class="text-sm text-gray-500">Mes cours</div>
+    </div>
+    <div class="stat-card">
+      <div class="text-3xl font-bold text-emerald-600 mb-1" style="font-family:'Bricolage Grotesque',sans-serif">{{ total_inscrits }}</div>
+      <div class="text-sm text-gray-500">Étudiants inscrits</div>
+    </div>
+    <div class="stat-card">
+      <div class="text-3xl font-bold text-cyan-600 mb-1" style="font-family:'Bricolage Grotesque',sans-serif">{{ cours_ce_mois }}</div>
+      <div class="text-sm text-gray-500">Ce mois</div>
+    </div>
+  </div>
+
+  <div class="glass-card overflow-hidden">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-indigo-50">
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600" class="text-gray-900">Mes cours publiés</h2>
+      <a href="{% url 'cours:ajouter_cours' %}" class="btn btn-sm bg-indigo-600 text-white border-0 rounded-xl">+ Nouveau</a>
+    </div>
+    {% for cours in mes_cours %}
+    <div class="flex items-center gap-4 px-6 py-4 hover:bg-indigo-50/50 border-b border-gray-50 group">
+      <div class="flex-1 min-w-0">
+        <a href="{% url 'cours:detail' cours.pk %}" class="font-medium text-gray-900 text-sm hover:text-indigo-600 block">{{ cours.titre }}</a>
+        <div class="text-xs text-gray-400">{{ cours.date_publication|date:"d/m/Y" }} · {{ cours.inscrits.count }} inscrit{{ cours.inscrits.count|pluralize }}</div>
+      </div>
+      <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+        <a href="{% url 'cours:modifier_cours' cours.pk %}" class="btn btn-xs btn-outline border-amber-300 text-amber-600 rounded-lg">✏️ Modifier</a>
+        <a href="{% url 'cours:supprimer_cours' cours.pk %}" class="btn btn-xs btn-outline border-red-300 text-red-500 rounded-lg">🗑 Supprimer</a>
+      </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-12 text-gray-400">
+      <p class="mb-4">Vous n'avez pas encore publié de cours.</p>
+      <a href="{% url 'cours:ajouter_cours' %}" class="btn bg-indigo-600 text-white border-0 rounded-xl btn-sm">Créer mon premier cours</a>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ÉTUDIANT DASHBOARD -->
+  {% else %}
+  <div class="grid grid-cols-1 gap-4 mb-10 max-w-xs">
+    <div class="stat-card">
+      <div class="text-3xl font-bold text-indigo-600 mb-1" style="font-family:'Bricolage Grotesque',sans-serif">{{ total_inscrits }}</div>
+      <div class="text-sm text-gray-500">Cours inscrits</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="glass-card overflow-hidden">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-indigo-50">
+        <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600" class="text-gray-900">Mes cours inscrits</h2>
+        <a href="{% url 'cours:espace_etudiant' %}" class="text-sm text-indigo-600">Voir tout →</a>
+      </div>
+      {% for insc in inscriptions %}
+      <div class="flex items-center gap-4 px-6 py-4 hover:bg-indigo-50/50 border-b border-gray-50">
+        <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center">
+          <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <a href="{% url 'cours:detail' insc.cours.pk %}" class="font-medium text-gray-900 text-sm hover:text-indigo-600 block truncate">{{ insc.cours.titre }}</a>
+          <div class="text-xs text-gray-400">{{ insc.cours.enseignant }}</div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-center py-10 text-gray-400 text-sm">
+        <a href="{% url 'cours:liste_cours' %}" class="btn bg-indigo-600 text-white border-0 rounded-xl btn-sm mt-2">Explorer les cours</a>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="glass-card p-6">
+      <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600" class="text-gray-900 mb-4">Actions rapides</h2>
+      <div class="space-y-2">
+        <a href="{% url 'cours:liste_cours' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-indigo-50">
+          <span class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-sm">📚</span>
+          <span class="text-sm font-medium text-gray-700">Explorer les cours</span>
+        </a>
+        <a href="{% url 'cours:espace_etudiant' %}" class="flex items-center gap-3 p-3 rounded-xl hover:bg-indigo-50">
+          <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-sm">🎓</span>
+          <span class="text-sm font-medium text-gray-700">Mon espace</span>
+        </a>
+        <a href="{% url 'cours:imprimer_cours' %}" target="_blank" class="flex items-center gap-3 p-3 rounded-xl hover:bg-amber-50">
+          <span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-sm">🖨</span>
+          <span class="text-sm font-medium text-gray-700">Imprimer mes cours</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
 </div>
 {% endblock %}

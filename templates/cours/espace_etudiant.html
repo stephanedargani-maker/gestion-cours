@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Mes cours — GestionCours{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+  <div class="flex items-center justify-between mb-10">
+    <div>
+      <h1 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:2rem" class="text-gray-900 mb-1">Mes cours inscrits</h1>
+      <p class="text-gray-500">{{ inscriptions|length }} cours dans votre espace</p>
+    </div>
+    <a href="{% url 'cours:imprimer_cours' %}" target="_blank" class="btn btn-outline border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-xl gap-2">
+      🖨 Imprimer
+    </a>
+  </div>
+
+  {% if inscriptions %}
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    {% for insc in inscriptions %}
+    <div class="glass-card p-5 flex items-center gap-4">
+      <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center flex-shrink-0">
+        <svg class="w-6 h-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <a href="{% url 'cours:detail' insc.cours.pk %}" class="font-semibold text-gray-900 hover:text-indigo-600 block truncate" style="font-family:'Bricolage Grotesque',sans-serif">{{ insc.cours.titre }}</a>
+        <p class="text-sm text-gray-500">{{ insc.cours.enseignant }} · Inscrit le {{ insc.date_inscription|date:"d/m/Y" }}</p>
+      </div>
+      <form method="post" action="{% url 'cours:desinscrire_cours' insc.cours.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-xs btn-ghost text-red-400 hover:bg-red-50 rounded-lg" title="Se désinscrire">✕</button>
+      </form>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-20 bg-white rounded-3xl border border-dashed border-indigo-200">
+    <div class="text-5xl mb-4">📚</div>
+    <h3 class="text-xl font-semibold text-gray-700 mb-2">Aucun cours inscrit</h3>
+    <p class="text-gray-400 mb-6">Explorez les cours disponibles et inscrivez-vous !</p>
+    <a href="{% url 'cours:liste_cours' %}" class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-0 rounded-xl">Voir les cours</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

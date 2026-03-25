@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Supprimer — {{ cours.titre }}{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto px-4 sm:px-6 py-16">
+  <div class="glass-card overflow-hidden">
+    <div class="h-2 bg-gradient-to-r from-red-500 to-rose-500"></div>
+    <div class="p-8 text-center">
+      <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-5">
+        <svg class="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      </div>
+      <h1 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.5rem" class="text-gray-900 mb-2">Supprimer ce cours ?</h1>
+      <p class="text-gray-500 mb-2">Cette action est <strong class="text-red-600">irréversible</strong>.</p>
+      <div class="bg-red-50 border border-red-200 rounded-2xl p-4 mb-8">
+        <p class="font-semibold text-gray-900">{{ cours.titre }}</p>
+        <p class="text-sm text-gray-500">{{ cours.enseignant }} — {{ cours.date_publication|date:"d/m/Y" }}</p>
+      </div>
+      <div class="flex gap-3">
+        <form method="post" class="flex-1">
+          {% csrf_token %}
+          <button type="submit" class="btn bg-red-600 hover:bg-red-700 text-white border-0 w-full rounded-xl">
+            Oui, supprimer définitivement
+          </button>
+        </form>
+        <a href="{% url 'cours:detail' cours.pk %}" class="btn btn-ghost rounded-xl text-gray-500">Annuler</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

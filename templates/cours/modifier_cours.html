@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Modifier — {{ cours.titre }}{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 py-12">
+  <div class="flex items-center gap-2 text-sm text-gray-400 mb-8">
+    <a href="{% url 'cours:liste' %}" class="hover:text-indigo-600">Accueil</a>
+    <span>›</span>
+    <a href="{% url 'cours:detail' cours.pk %}" class="hover:text-indigo-600">{{ cours.titre|truncatechars:30 }}</a>
+    <span>›</span>
+    <span class="text-gray-600">Modifier</span>
+  </div>
+
+  <div class="glass-card overflow-hidden">
+    <div class="h-2 bg-gradient-to-r from-amber-400 to-orange-500"></div>
+    <div class="p-8">
+      <div class="flex items-center gap-4 mb-8">
+        <div class="w-14 h-14 rounded-2xl bg-amber-500 flex items-center justify-center shadow-lg">
+          <svg class="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        </div>
+        <div>
+          <h1 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.75rem" class="text-gray-900">Modifier le cours</h1>
+          <p class="text-gray-500 text-sm">{{ cours.titre }}</p>
+        </div>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-control mb-5">
+          <label class="label pb-1"><span class="label-text font-medium text-gray-700">Titre <span class="text-red-500">*</span></span></label>
+          {{ form.titre }}
+        </div>
+        <div class="form-control mb-5">
+          <label class="label pb-1"><span class="label-text font-medium text-gray-700">Enseignant <span class="text-red-500">*</span></span></label>
+          {{ form.enseignant }}
+        </div>
+        <div class="form-control mb-5">
+          <label class="label pb-1"><span class="label-text font-medium text-gray-700">Date de publication <span class="text-red-500">*</span></span></label>
+          {{ form.date_publication }}
+        </div>
+        <div class="form-control mb-8">
+          <label class="label pb-1"><span class="label-text font-medium text-gray-700">Description</span></label>
+          {{ form.description }}
+        </div>
+        <div class="flex gap-3">
+          <button type="submit" class="btn bg-amber-500 hover:bg-amber-600 text-white border-0 flex-1 rounded-xl">Enregistrer les modifications</button>
+          <a href="{% url 'cours:detail' cours.pk %}" class="btn btn-ghost rounded-xl text-gray-500">Annuler</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

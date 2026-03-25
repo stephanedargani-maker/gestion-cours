@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Impression — {{ titre_liste }}{% endblock %}
+{% block extra_head %}
+<style>
+  @media print {
+    body { font-family: 'Inter', sans-serif; font-size: 12px; }
+    .print-only { display: block !important; }
+  }
+  .print-only { display: none; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+
+  <!-- Contrôles (cachés à l'impression) -->
+  <div class="flex items-center justify-between mb-8 no-print">
+    <div>
+      <h1 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.75rem" class="text-gray-900">Aperçu avant impression</h1>
+      <p class="text-gray-500 text-sm">{{ cours_list|length }} cours — {{ date_impression|date:"d/m/Y à H:i" }}</p>
+    </div>
+    <button onclick="window.print()" class="btn bg-indigo-600 hover:bg-indigo-700 text-white border-0 rounded-xl gap-2">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+      🖨 Imprimer maintenant
+    </button>
+  </div>
+
+  <!-- Document à imprimer -->
+  <div class="bg-white rounded-3xl shadow-sm border border-indigo-50 p-8" id="print-area">
+
+    <!-- En-tête -->
+    <div class="print-header mb-8 pb-6 border-b-2 border-indigo-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.5rem" class="text-indigo-700">GestionCours</h2>
+          <h3 style="font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:1.2rem" class="text-gray-900 mt-1">{{ titre_liste }}</h3>
+        </div>
+        <div class="text-right text-sm text-gray-500">
+          <p>Imprimé le {{ date_impression|date:"d/m/Y" }}</p>
+          <p>à {{ date_impression|date:"H:i" }}</p>
+          <p class="mt-1">Par : {{ user.get_full_name|default:user.username }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tableau -->
+    {% if cours_list %}
+    <table class="print-table w-full border-collapse">
+      <thead>
+        <tr style="background:#eef2ff">
+          <th class="border border-indigo-100 px-4 py-3 text-left text-sm font-semibold text-indigo-900">#</th>
+          <th class="border border-indigo-100 px-4 py-3 text-left text-sm font-semibold text-indigo-900">Titre du cours</th>
+          <th class="border border-indigo-100 px-4 py-3 text-left text-sm font-semibold text-indigo-900">Enseignant</th>
+          <th class="border border-indigo-100 px-4 py-3 text-left text-sm font-semibold text-indigo-900">Date de publication</th>
+          {% if role == 'admin' %}<th class="border border-indigo-100 px-4 py-3 text-left text-sm font-semibold text-indigo-900">Inscrits</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for cours in cours_list %}
+        <tr style="background: {% cycle 'white' '#f8f7ff' %}">
+          <td class="border border-indigo-50 px-4 py-3 text-sm text-gray-500">{{ forloop.counter }}</td>
+          <td class="border border-indigo-50 px-4 py-3 text-sm font-medium text-gray-900">{{ cours.titre }}</td>
+          <td class="border border-indigo-50 px-4 py-3 text-sm text-gray-600">{{ cours.enseignant }}</td>
+          <td class="border border-indigo-50 px-4 py-3 text-sm text-gray-600">{{ cours.date_publication|date:"d/m/Y" }}</td>
+          {% if role == 'admin' %}<td class="border border-indigo-50 px-4 py-3 text-sm text-gray-600">{{ cours.inscrits.count }}</td>{% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr style="background:#eef2ff">
+          <td colspan="{% if role == 'admin' %}5{% else %}4{% endif %}" class="border border-indigo-100 px-4 py-3 text-sm font-semibold text-indigo-700 text-right">
+            Total : {{ cours_list|length }} cours
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+    {% else %}
+    <div class="text-center py-12 text-gray-400">Aucun cours à afficher.</div>
+    {% endif %}
+
+    <!-- Pied de document -->
+    <div class="mt-8 pt-4 border-t border-gray-100 flex justify-between text-xs text-gray-400">
+      <span>GestionCours — Plateforme de gestion des cours</span>
+      <span>Document généré le {{ date_impression|date:"d/m/Y à H:i" }}</span>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
